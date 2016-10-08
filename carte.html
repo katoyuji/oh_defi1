@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<title>carte</title>
+		<meta name="description" content="">
+		<meta name="author" content="Yuji Kato">
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<link rel="stylesheet" href="carte.css" />
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		
+		 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+		 <script src="jquery-3.1.1.min.js"></script>
+
+	</head>
+
+	<body>
+		<div id="map">
+			
+			
+			<script>
+				var phares = new L.LayerGroup();
+				L.marker([48.3364828, -4.6142578]).bindPopup('Phare du petit minou').addTo(phares);
+				
+				
+				
+				var southWest = L.latLng(48, -6),
+    				northEast = L.latLng(50, -3),
+    				bounds = L.latLngBounds(southWest, northEast);
+				var map = L.map('map', {
+					minZoom: 9,
+					maxZoom: 22,
+					maxBounds: bounds
+				}).setView([48.34, -4.5], 12);
+
+
+
+//				L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {  // Adresse des tuiles
+//					attribution: '&copy;  <a href="http://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community', // copyright (en bas à droite de la carte)
+//					maxZoom: 18,
+//				}).addTo(map);
+
+
+
+				var wmsLayer = L.tileLayer.wms('http://services.data.shom.fr/wbu1tn9qmq9n6by8ijsy69sk/wms/r', {
+				    layers: 'RASTER_MARINE_50_WMSR'
+				}).addTo(map);
+
+				L.control.scale({imperial: false}).addTo(map);
+							  // load GeoJSON from an external file
+				$.getJSON("habitat.geojson",function(hoodData){
+					L.geoJson( hoodData, {
+					    style: function(feature){
+					      var fillColor,
+					          type = feature.properties.COD_EUR27;
+					      if ( type == "1140" ) fillColor = "#A48640";
+					      else if ( type == "1330\/1320" ) fillColor = "#38722D";
+					      else if ( type == "1170" ) fillColor = "#A6A193";
+					      else if ( type == "1130" ) fillColor = "#29346A";
+					      else if ( type == "1110" ) fillColor = "#EAB401";
+					      else fillColor = "#f7f7f7";  // no data
+					      return { color: "#999", weight: 1, fillColor: fillColor, fillOpacity: .6 };
+					    },
+					    onEachFeature: function( feature, layer ){
+					      layer.bindPopup(feature.properties.LIB_EUR27)
+					    }
+					}).addTo(map);
+				});
+			  	$.getJSON("epaves2.geojson",function(data){
+				  var epaveIcon = L.icon({
+				    iconUrl: 'wreck.png',
+				    iconSize: [30,25]
+				  });
+				  L.geoJson(data,{
+				    pointToLayer: function(feature,latlng){
+					    var marker = L.marker(latlng,{icon: epaveIcon});
+  						marker.bindPopup(feature.properties.OBJNAM + '<br/>' + feature.properties.circon);
+  						return marker;
+				    }
+				  }).addTo(map);
+				});
+				var overlays = {
+					"Phares": phares
+				};
+				L.control.layers(null, overlays).addTo(map);
+				
+
+
+
+			</script>
+		</div>
+		
+	</body>
+</html>
