@@ -30,7 +30,9 @@
 			
 			
 			<script>
-				var phares = new L.LayerGroup();
+				var phares = new L.LayerGroup(),
+					habitats = new L.LayerGroup(),
+					epaves = new L.LayerGroup();
 				L.marker([48.3364828, -4.6142578]).bindPopup('Phare du petit minou').addTo(phares);
 				
 				
@@ -75,7 +77,7 @@
 					    onEachFeature: function( feature, layer ){
 					      layer.bindPopup(feature.properties.LIB_EUR27)
 					    }
-					}).addTo(map);
+					}).addTo(habitats);
 				});
 			  	$.getJSON("epaves2.geojson",function(data){
 				  var epaveIcon = L.icon({
@@ -88,10 +90,12 @@
   						marker.bindPopup(feature.properties.OBJNAM + '<br/>' + feature.properties.circon);
   						return marker;
 				    }
-				  }).addTo(map);
+				  }).addTo(epaves);
 				});
 				var overlays = {
-					"Phares": phares
+					"Phares": phares,
+					"Epaves": epaves,
+					"Habitats naturels": habitats
 				};
 				L.control.layers(null, overlays).addTo(map);
 				
