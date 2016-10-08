@@ -32,8 +32,10 @@
 			<script>
 				var phares = new L.LayerGroup(),
 					habitats = new L.LayerGroup(),
-					epaves = new L.LayerGroup();
-				L.marker([48.3364828, -4.6142578]).bindPopup('Phare du petit minou').addTo(phares);
+					epaves = new L.LayerGroup(),
+					tch = new L.LayerGroup(),
+					defenses = new L.LayerGroup();
+				
 				
 				
 				
@@ -61,7 +63,7 @@
 
 				L.control.scale({imperial: false}).addTo(map);
 							  // load GeoJSON from an external file
-				$.getJSON("habitat.geojson",function(hoodData){
+				$.getJSON("json/habitat.geojson",function(hoodData){
 					L.geoJson( hoodData, {
 					    style: function(feature){
 					      var fillColor,
@@ -79,25 +81,66 @@
 					    }
 					}).addTo(habitats);
 				});
-			  	$.getJSON("epaves2.geojson",function(data){
+				
+				
+			  	$.getJSON("json/epaves.geojson",function(data){
 				  var epaveIcon = L.icon({
-				    iconUrl: 'wreck.png',
+				    iconUrl: 'img/wreck.png',
 				    iconSize: [30,25]
 				  });
 				  L.geoJson(data,{
 				    pointToLayer: function(feature,latlng){
-					    var marker = L.marker(latlng,{icon: epaveIcon});
-  						marker.bindPopup(feature.properties.OBJNAM + '<br/>' + feature.properties.circon);
+					    var marker = L.marker(latlng,{title: feature.properties.OBJNAM, icon: epaveIcon});
+  						marker.bindPopup('Nom : ' + feature.properties.OBJNAM + '<br/><img src="'+ feature.properties.img + '" height="116" width="242"/><br/>Type : ' + feature.properties.caract + '<br/>Profondeur : ' + 
+  							feature.properties.VALSOU + '<br/>Circonstances : ' + feature.properties.circon);
   						return marker;
 				    }
 				  }).addTo(epaves);
 				});
+				
+				$.getJSON("json/DefenseMilitaire.geojson",function(data){
+				  var castleIcon = L.icon({
+				    iconUrl: 'img/castle.png',
+				    iconSize: [30,25]
+				  });
+				  L.geoJson(data,{
+				    pointToLayer: function(feature,latlng){
+					    var marker = L.marker(latlng,{title: feature.properties.NOMS, icon: castleIcon});
+						marker.bindPopup('Nom : ' + feature.properties.NOMS + '<br/>Type : ' + feature.properties.NOM_TYPE + '<br/>Période : ' + 
+  							feature.properties.PREC_EPOK);
+  						return marker;
+				    }
+				  }).addTo(defenses);
+				});
+				
+				
+				L.marker([48.3364828, -4.6142578]).bindPopup('Phare du petit minou').addTo(phares);
+				
+				$.getJSON("json/tchrade.geojson",function(hoodData){
+				  L.geoJson( hoodData, {
+				  	style: {
+				  		color: 'black',
+		                weight: 2,
+		                opacity: .7,
+		                lineJoin: 'round'
+				  	}
+				  }).addTo(tch);
+				});
+				
 				var overlays = {
 					"Phares": phares,
 					"Epaves": epaves,
-					"Habitats naturels": habitats
+					"Habitats naturels": habitats,
+					"Trait de côte" : tch,
+					"Ouvrages militaires historiques": defenses
 				};
 				L.control.layers(null, overlays).addTo(map);
+				
+				map.addLayer(phares);
+				map.addLayer(epaves);
+				map.addLayer(habitats);
+				map.addLayer(tch);
+				map.addLayer(defenses);
 				
 
 
