@@ -65,7 +65,7 @@
 
 				L.control.scale({imperial: false}).addTo(map);
 							  // load GeoJSON from an external file
-				$.getJSON("json/habitat.geojson",function(hoodData){
+/*				$.getJSON("json/habitat.geojson",function(hoodData){
 					L.geoJson( hoodData, {
 					    style: function(feature){
 					      var fillColor,
@@ -80,6 +80,30 @@
 					    },
 					    onEachFeature: function( feature, layer ){
 					      layer.bindPopup(feature.properties.LIB_EUR27)
+					    }
+					}).addTo(habitats);
+				}); */
+				
+				
+				$.getJSON("json/habitat_rdb.geojson",function(hoodData){
+					L.geoJson( hoodData, {
+					    style: function(feature){
+					      var fillColor,
+					          type = feature.properties.type_hab;
+					      if ( type == "Sables et sédiments" ) fillColor = "#F6DD01";
+					      else if ( type == "Roches et blocs" ) fillColor = "#8B9697";
+					      else if ( type == "Herbiers" ) fillColor = "#1D5E1B";
+					      else if ( type == "Vases" ) fillColor = "#72642A";
+					      else fillColor = "#324473";  // no data
+					      return { color: "#999", weight: 1, fillColor: fillColor, fillOpacity: .6 };
+					    },
+					    onEachFeature: function( feature, layer ){
+					      layer.bindPopup(feature.properties.type_hab + '<br/>Espèces présentes<br/>' + feature.properties.espece1 + 
+					      '<br/><img src="'+ feature.properties.esp1_img + '" /><br/>Statut : ' + 
+					      feature.properties.esp1_statu + '<br/>description ' + feature.properties.esp1_desc + '<br/><br/>' + 
+					      feature.properties.espece2 + '<br/><img src="'+ feature.properties.esp2_img + 
+					      '" /><br/>Statut : ' + feature.properties.esp2_statu + '<br/>description ' + 
+					      feature.properties.esp2_desc);
 					    }
 					}).addTo(habitats);
 				});
