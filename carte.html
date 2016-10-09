@@ -34,6 +34,8 @@
 					habitats = new L.LayerGroup(),
 					epaves = new L.LayerGroup(),
 					tch = new L.LayerGroup(),
+					belv = new L.LayerGroup(),
+				//	poi= new L.LayerGroup(),
 					defenses = new L.LayerGroup();
 				
 				
@@ -114,7 +116,47 @@
 				});
 				
 				
-				L.marker([48.3364828, -4.6142578]).bindPopup('Phare du petit minou').addTo(phares);
+				$.getJSON("json/Belvedere.geojson",function(data){
+				  var belvIcon = L.icon({
+				    iconUrl: 'img/belvedere.png',
+				    iconSize: [30,25]
+				  });
+				  L.geoJson(data,{
+				    pointToLayer: function(feature,latlng){
+					    var marker = L.marker(latlng,{title: feature.properties.DESIG, icon: belvIcon});
+						marker.bindPopup('Nom : ' + feature.properties.DESIG + '<br/>Situation : ' + feature.properties.SITUATION);
+  						return marker;
+				    }
+				  }).addTo(belv);
+				});
+				
+				
+				$.getJSON("json/poi.geojson",function(data){
+				  L.geoJson(data,{
+				    pointToLayer: function(feature,latlng){
+					    var marker = L.marker(latlng,{title: feature.properties.nom});
+						marker.bindPopup('<iframe scrolling="no" src="' + feature.properties.url + '" width="640" height="480" frameborder="0"></iframe>', {maxWidth: 700});
+  						return marker;
+				    }
+				  }).addTo(belv);
+				});
+				
+				$.getJSON("json/FeuPhares.geojson",function(data){
+				  var phareIcon = L.icon({
+				    iconUrl: 'img/picto-culturel-blanc.png',
+				    iconSize: [30,25]
+				  });
+				  L.geoJson(data,{
+				    pointToLayer: function(feature,latlng){
+					    var marker = L.marker(latlng,{title: feature.properties.NOM, icon: phareIcon});
+						marker.bindPopup('Nom : ' + feature.properties.NOM + '<br/>Type : ' + feature.properties.NOM_TYP_SI  + 
+							'<br/>Emplacement : ' + feature.properties.LIEUX_DIT);
+  						return marker;
+				    }
+				  }).addTo(phares);
+				});
+				
+//				L.marker([48.3364828, -4.6142578]).bindPopup('Phare du petit minou').addTo(phares);
 				
 				$.getJSON("json/tchrade.geojson",function(hoodData){
 				  L.geoJson( hoodData, {
@@ -128,10 +170,11 @@
 				});
 				
 				var overlays = {
-					"Phares": phares,
+					"Phares et feux": phares,
 					"Epaves": epaves,
 					"Habitats naturels": habitats,
 					"Trait de côte" : tch,
+					"Belvédères" : belv,
 					"Ouvrages militaires historiques": defenses
 				};
 				L.control.layers(null, overlays).addTo(map);
@@ -140,7 +183,7 @@
 				map.addLayer(epaves);
 				map.addLayer(habitats);
 				map.addLayer(tch);
-				map.addLayer(defenses);
+				map.addLayer(belv);
 				
 
 
