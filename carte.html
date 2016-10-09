@@ -35,7 +35,7 @@
 					epaves = new L.LayerGroup(),
 					tch = new L.LayerGroup(),
 					belv = new L.LayerGroup(),
-				//	poi= new L.LayerGroup(),
+					ais= new L.LayerGroup(),
 					defenses = new L.LayerGroup();
 				
 				
@@ -82,6 +82,13 @@
 					      layer.bindPopup(feature.properties.LIB_EUR27)
 					    }
 					}).addTo(habitats);
+				});
+				
+				
+				$.getJSON("json/ais.geojson",function(hoodData){
+					L.geoJson( hoodData, {
+					    style:  { color: "#999", weight: 1, fillColor: "#999", fillOpacity: .3 }
+					}).addTo(ais);
 				});
 				
 				
@@ -135,7 +142,8 @@
 				  L.geoJson(data,{
 				    pointToLayer: function(feature,latlng){
 					    var marker = L.marker(latlng,{title: feature.properties.nom});
-						marker.bindPopup('<iframe scrolling="no" src="' + feature.properties.url + '" width="640" height="480" frameborder="0"></iframe>', {maxWidth: 700});
+						marker.bindPopup('<iframe scrolling="no" src="' + feature.properties.url + 
+							'" width="640" height="480" frameborder="0"></iframe>', {maxWidth: 700});
   						return marker;
 				    }
 				  }).addTo(belv);
@@ -149,8 +157,9 @@
 				  L.geoJson(data,{
 				    pointToLayer: function(feature,latlng){
 					    var marker = L.marker(latlng,{title: feature.properties.NOM, icon: phareIcon});
-						marker.bindPopup('Nom : ' + feature.properties.NOM + '<br/>Type : ' + feature.properties.NOM_TYP_SI  + 
-							'<br/>Emplacement : ' + feature.properties.LIEUX_DIT);
+						marker.bindPopup('Nom : ' + feature.properties.NOM + '<br/><img src="'+ feature.properties.img + 
+							'" height="160" width="242"/><br/>Type : ' + feature.properties.NOM_TYP_SI  + '<br/>Emplacement : ' + 
+							feature.properties.LIEUX_DIT + '<br/><a href="' + feature.properties.pdf + '" target="_blank">Fiche du phare</a>');
   						return marker;
 				    }
 				  }).addTo(phares);
@@ -175,6 +184,7 @@
 					"Habitats naturels": habitats,
 					"Trait de côte" : tch,
 					"Belvédères" : belv,
+					"Trafic maritime" : ais,
 					"Ouvrages militaires historiques": defenses
 				};
 				L.control.layers(null, overlays).addTo(map);
